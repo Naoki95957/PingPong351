@@ -9,5 +9,8 @@
    - Any variation of this chip should be okay: DIP, QFN, etc
  - There is a posibility that I'll attempt to use an extra ESP32 to enable WIFI - scoring
    - Basically the score and buttons will be avalible on web as well as physically
+   
+### Libraries
+ - [I2C](https://github.com/fdebrabander/Arduino-LiquidCrystal-I2C-library)
 ### Tasks
   - [visit projects](https://github.com/Naoki95957/PingPong351/projects)
