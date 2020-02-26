@@ -65,20 +65,22 @@ void PingPongScores::decreaseScore(bool team1)
 };
 void PingPongScores::updateLEDs()
 {
+  digitalWrite(led_team1, LOW);
+  digitalWrite(led_team2, LOW);
 	if (led_blink_team1)//blinking
 	{
 		if (led_state_counter_team1 < delay_blinker * blinker_times)//not done (done when overall counter exceeds)
 		{
-			if (led_state_aux_counter_team1 < delay_blinker)//0-50 for example
+			if (led_state_aux_counter_team1 < delay_blinker / 2)//0-50 for example
 			{
 				digitalWrite(led_team1, HIGH);
 			}
-			else if (led_state_aux_counter_team1 < delay_blinker * 2)//50-100
+			else if (led_state_aux_counter_team1 < delay_blinker)//50-100
 			{
 				digitalWrite(led_team1, LOW);
 			}
 			++led_state_aux_counter_team1;
-			led_state_aux_counter_team1 %= delay_blinker * 2;//reset upon 100
+			led_state_aux_counter_team1 %= delay_blinker;//reset upon 100
 		}
 		else
 		{
@@ -88,21 +90,20 @@ void PingPongScores::updateLEDs()
 		}
 		++led_state_counter_team1;
 	}
-
 	if (led_blink_team2)//same thing but with other led
 	{
 		if (led_state_counter_team2 < delay_blinker * blinker_times)
 		{
-			if (led_state_aux_counter_team2 < delay_blinker)
+			if (led_state_aux_counter_team2 < delay_blinker / 2)
 			{
 				digitalWrite(led_team2, HIGH);
 			}
-			else if (led_state_aux_counter_team2 < delay_blinker * 2)
+			else if (led_state_aux_counter_team2 < delay_blinker)
 			{
 				digitalWrite(led_team1, LOW);
 			}
 			++led_state_aux_counter_team2;
-			led_state_aux_counter_team2 %= delay_blinker * 2;
+			led_state_aux_counter_team2 %= delay_blinker;
 		}
 		else
 		{

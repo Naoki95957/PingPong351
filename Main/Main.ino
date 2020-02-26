@@ -10,29 +10,41 @@
 //set the LCD address to 0x27 for a 16 chars and 2 line display
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 //-=-=-=-=-=-=-=-=-=-=-=Interrupt=-=-=-=-=-=-=-=-=-=-=-=-//
-#define interruptPin 2
+#define interruptPin 0//is 2 and 1 is to 3
 
+//-=-=-=-=-=-=-=-=-=-=-=-Buttons-=-=-=-=-=-=-=-=-=-=-=-=-//
+#define increase_team1 3
+#define decrease_team1 4
+#define increase_team2 5
+#define decrease_team2 6
+
+//-=-=-=-=-=-=-=-=-=-=-=-=-LEDS=-=-=-=-=-=-=-=-=-=-=-=-=-//
 //these are arbitrary
-#define led_team1 5
-#define led_team2 6
+#define led_team1 7
+#define led_team2 8
 
 /***
  * SOFTWARE
  */
-//-=-=-=-=-=-=-=-=-=-=-=Variables=-=-=-=-=-=-=-=-=-=-=-=-//
-PingPongScores score = PingPongScores(led_team1, led_team2, delay_length, delay_blinker, delay_blinker_times);
-
 //-=-=-=-=-=-=-=-=-=-Configuration-=-=-=-=-=-=-=-=-=-=-//
 #define delay_length 10
 #define delay_blinker 50 //this is such that: x * delay_length = ~1/2 a second
 #define delay_blinker_times 5 //this is how many times you want it to blink, assuming: (50% on & 50% off)
+//-=-=-=-=-=-=-=-=-=-=-=Variables=-=-=-=-=-=-=-=-=-=-=-=-//
+PingPongScores score = PingPongScores(led_team1, led_team2, delay_length, delay_blinker, delay_blinker_times);
 
 
 void setup()
 {
+  Serial.begin(9600);
   //this attaches the interrupt function to the interrupt pin when the pin is rising
   attachInterrupt(interruptPin, interrupt, RISING);
 
+  pinMode(increase_team1, INPUT);
+  pinMode(increase_team2, INPUT);
+  pinMode(decrease_team1, INPUT);
+  pinMode(decrease_team2, INPUT);
+  
   pinMode(led_team1, OUTPUT);
   pinMode(led_team2, OUTPUT);
   
@@ -45,9 +57,9 @@ void setup()
 }
 
 void loop()
-{
+{ 
   score.updateLEDs();//this needs to be called into the loop!!!
-  updateScoreBoard();
+  updateScoreBoard();//TODO fix this shit
   
   //delay so that the board doesn't work too hard
    delay(delay_length);
@@ -96,9 +108,28 @@ void writeScores(int score_t1, int score_t2)
 //any variables should also be volatile
 void interrupt()
 {
+//  Serial.println("INTERRUPTED");
+//  Serial.println(digitalRead(increase_team1));
+//  Serial.println(digitalRead(increase_team2));
+//  Serial.println(digitalRead(decrease_team1));
+//  Serial.println(digitalRead(decrease_team2));
+//  Serial.println("-------------");
   //check the 4 buttons
-  //if() //++team1
-  //else if() //++team2
-  //else if() //--team1
-  //else //--team2
+  if(digitalRead(increase_team1))
+  {
+    score.increaseScore(true);//team 1
+  }
+  else if(digitalRead(increase_team2))
+  {
+    score.increaseScore(false);//team 1
+  }
+  //decreaseScores
+  if(digitalRead(decrease_team1))
+  {
+    score.decreaseScore(true);//team 1
+  }
+  else if(digitalRead(decrease_team2))
+  {
+    score.decreaseScore(false);//team 1
+  }
 }
