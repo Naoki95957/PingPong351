@@ -38,6 +38,7 @@ void setup()
 {
   Serial.begin(9600);
   //this attaches the interrupt function to the interrupt pin when the pin is rising
+  pinMode(2, INPUT_PULLUP);//puts a resistor on the input to filter some noise
   attachInterrupt(interruptPin, interrupt, RISING);
 
   pinMode(increase_team1, INPUT);
@@ -106,30 +107,43 @@ void writeScores(int score_t1, int score_t2)
 
 //when in interrupt dleay wil not work
 //any variables should also be volatile
+
+//the reason it is structured with trigger
+//is so that if interrupt is accidentally called
+//(ie with static charge), than it will dismiss it
 void interrupt()
 {
 //  Serial.println("INTERRUPTED");
-//  Serial.println(digitalRead(increase_team1));
-//  Serial.println(digitalRead(increase_team2));
-//  Serial.println(digitalRead(decrease_team1));
-//  Serial.println(digitalRead(decrease_team2));
-//  Serial.println("-------------");
+  Serial.println(digitalRead(increase_team1));
+  Serial.println(digitalRead(increase_team2));
+  Serial.println(digitalRead(decrease_team1));
+  Serial.println(digitalRead(decrease_team2));
+  Serial.println("-------------");
   //check the 4 buttons
+  bool triggered = false;
   if(digitalRead(increase_team1))
   {
     score.increaseScore(true);//team 1
+    triggered = true;
   }
   else if(digitalRead(increase_team2))
   {
-    score.increaseScore(false);//team 1
+    score.increaseScore(false);//team 2
+    triggered = true;
   }
   //decreaseScores
   if(digitalRead(decrease_team1))
   {
     score.decreaseScore(true);//team 1
+    triggered = true;
   }
   else if(digitalRead(decrease_team2))
   {
-    score.decreaseScore(false);//team 1
+    score.decreaseScore(false);//team 2
+    triggered = true;
+  }
+  if(triggered)
+  {
+    //todo update lcd (CANNOT USE DELAY)
   }
 }
