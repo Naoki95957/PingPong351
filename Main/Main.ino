@@ -30,15 +30,18 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 #define delay_length 10
 #define delay_blinker 50 //this is such that: x * delay_length = ~1/2 a second
 #define delay_blinker_times 5 //this is how many times you want it to blink, assuming: (50% on & 50% off)
+#define rejection_time 250 //time in ms before next press is accepted
 //-=-=-=-=-=-=-=-=-=-=-=Variables=-=-=-=-=-=-=-=-=-=-=-=-//
 PingPongScores score = PingPongScores(led_team1, led_team2, delay_length, delay_blinker, delay_blinker_times);
+int rejection_counter = 0;
+bool acceptInput = true;
 
 
 void setup()
 {
   Serial.begin(9600);
   //this attaches the interrupt function to the interrupt pin when the pin is rising
-  pinMode(2, INPUT_PULLUP);//puts a resistor on the input to filter some noise
+  //pinMode(2, INPUT_PULLUP);//puts a resistor on the input to filter some noise
   attachInterrupt(interruptPin, interrupt, RISING);
 
   pinMode(increase_team1, INPUT);
@@ -64,6 +67,16 @@ void loop()
   
   //delay so that the board doesn't work too hard
    delay(delay_length);
+   
+   if(!acceptInput)//helps with hysteresis on buttons
+   {
+     rejection_counter++;
+     if(rejection_counter * delay_length >= rejection_time)
+     {
+        rejection_counter = 0;
+        acceptInput = true;
+     }
+   }
 }
 
 //this will be called at the end of loop for each update
@@ -113,37 +126,42 @@ void writeScores(int score_t1, int score_t2)
 //(ie with static charge), than it will dismiss it
 void interrupt()
 {
-//  Serial.println("INTERRUPTED");
-  Serial.println(digitalRead(increase_team1));
-  Serial.println(digitalRead(increase_team2));
-  Serial.println(digitalRead(decrease_team1));
-  Serial.println(digitalRead(decrease_team2));
-  Serial.println("-------------");
   //check the 4 buttons
-  bool triggered = false;
-  if(digitalRead(increase_team1))
+  bool inc_team1 = digitalRead(increase_team1);
+  bool inc_team2 = digitalRead(increase_team2);
+  bool dec_team1 = digitalRead(decrease_team1);
+  bool dec_team2 = digitalRead(decrease_team2);
+  
+  bool triggered = inc_team1 || inc_team2 || dec_team1 || dec_team2;
+
+  //compare
+  if(inc_team1)
   {
     score.increaseScore(true);//team 1
-    triggered = true;
   }
-  else if(digitalRead(increase_team2))
+  else if(inc_team2)
   {
     score.increaseScore(false);//team 2
-    triggered = true;
   }
   //decreaseScores
-  if(digitalRead(decrease_team1))
+  if(dec_team1)
   {
     score.decreaseScore(true);//team 1
-    triggered = true;
   }
-  else if(digitalRead(decrease_team2))
+  else if(dec_team2)
   {
     score.decreaseScore(false);//team 2
-    triggered = true;
   }
   if(triggered)
   {
+  //  Serial.println("INTERRUPTED");
+    Serial.println(inc_team1);
+    Serial.println(inc_team2);
+    Serial.println(dec_team1);
+    Serial.println(dec_team2);
+    Serial.println("-------------");
+    acceptInput = false;
+    rejection_counter = 0;
     //todo update lcd (CANNOT USE DELAY)
   }
 }
