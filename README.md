@@ -11,6 +11,6 @@
    - Basically the score and buttons will be avalible on web as well as physically
    
 ### Libraries
- - [I2C](https://github.com/fdebrabander/Arduino-LiquidCrystal-I2C-library)
+ - [I2C](https://github.com/johnrickman/LiquidCrystal_I2C/)
 ### Tasks
   - [visit projects](https://github.com/Naoki95957/PingPong351/projects)
