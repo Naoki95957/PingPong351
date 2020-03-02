@@ -35,6 +35,7 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 PingPongScores score = PingPongScores(led_team1, led_team2, delay_length, delay_blinker, delay_blinker_times);
 int rejection_counter = 0;
 bool acceptInput = true;
+bool updateLCD = false;
 
 
 void setup()
@@ -56,14 +57,18 @@ void setup()
   
   lcd.backlight();
   lcd.setCursor(0,0);
-  lcd.print("Hello, world!");
+  lcd.print("Whoop Whoop");
   // Print a message to the LCD
 }
 
 void loop()
 { 
   score.updateLEDs();//this needs to be called into the loop!!!
-  updateScoreBoard();//TODO fix this shit
+  if(updateLCD)
+  {
+    updateScoreBoard();
+    updateLCD = false;
+  }
   
   //delay so that the board doesn't work too hard
    delay(delay_length);
@@ -82,6 +87,7 @@ void loop()
 //this will be called at the end of loop for each update
 void updateScoreBoard()
 {
+  lcd.clear();
   writeGames(score.game_team1, score.game_team2);
   writeScores(score.score_team1, score.score_team2);
 }
@@ -91,15 +97,13 @@ void writeGames(int game_t1, int game_t2)
   //since the score will never exceed 2 digits
   //we can simple do check if its greater than 9
   //team 1 is left leading
-  lcd.setCursor(0, 0);
-  String score1 = "" + game_t1;
-  lcd.print(score1);
+  lcd.home();
+  lcd.print(String(game_t1));
 
   //team 2 is right leading
   volatile bool extraDigits = game_t2 > 9;
   lcd.setCursor(15 - extraDigits, 0);
-  String score2 = "" + game_t2;
-  lcd.print(score2); 
+  lcd.print(String(game_t2)); 
 }
 
 void writeScores(int score_t1, int score_t2)
@@ -107,15 +111,14 @@ void writeScores(int score_t1, int score_t2)
   //since the score will never exceed 2 digits
   //we can simple do check if its greater than 9
   //team 1 is left leading
+  lcd.home();
   lcd.setCursor(0, 1);
-  String score1 = "" + score_t1;
-  lcd.print(score1);
+  lcd.print(String(score_t1));
 
   //team 2 is right leading
   volatile bool extraDigits = score_t2 > 9;
   lcd.setCursor(15 - extraDigits, 1);
-  String score2 = "" + score_t2;
-  lcd.print(score2); 
+  lcd.print(String(score_t2)); 
 }
 
 //when in interrupt dleay wil not work
@@ -133,35 +136,38 @@ void interrupt()
   bool dec_team2 = digitalRead(decrease_team2);
   
   bool triggered = inc_team1 || inc_team2 || dec_team1 || dec_team2;
-
-  //compare
-  if(inc_team1)
+  if(acceptInput)
   {
-    score.increaseScore(true);//team 1
-  }
-  else if(inc_team2)
-  {
-    score.increaseScore(false);//team 2
-  }
-  //decreaseScores
-  if(dec_team1)
-  {
-    score.decreaseScore(true);//team 1
-  }
-  else if(dec_team2)
-  {
-    score.decreaseScore(false);//team 2
-  }
-  if(triggered)
-  {
-  //  Serial.println("INTERRUPTED");
-    Serial.println(inc_team1);
-    Serial.println(inc_team2);
-    Serial.println(dec_team1);
-    Serial.println(dec_team2);
-    Serial.println("-------------");
-    acceptInput = false;
-    rejection_counter = 0;
-    //todo update lcd (CANNOT USE DELAY)
+    //compare
+    if(inc_team1)
+    {
+      score.increaseScore(true);//team 1
+    }
+    else if(inc_team2)
+    {
+      score.increaseScore(false);//team 2
+    }
+    //decreaseScores
+    if(dec_team1)
+    {
+      score.decreaseScore(true);//team 1
+    }
+    else if(dec_team2)
+    {
+      score.decreaseScore(false);//team 2
+    }
+    if(triggered)
+    {
+    //  Serial.println("INTERRUPTED");
+      Serial.println(inc_team1);
+      Serial.println(inc_team2);
+      Serial.println(dec_team1);
+      Serial.println(dec_team2);
+      Serial.println("-------------");
+      acceptInput = false;
+      rejection_counter = 0;
+      updateLCD = true;
+      //todo update lcd (CANNOT USE DELAY)
+    }
   }
 }
