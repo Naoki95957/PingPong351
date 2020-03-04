@@ -3,14 +3,17 @@
 
 void PingPongScores::increaseScore(bool team1)
 {
-  if(score_team1 > 9 && score_team2 > 9)
+  //serving logic
+  if(score_team1 > 9 && score_team2 > 9)//so 10-10 or higher
   { 
-    team1_serving = !team1_serving;
+    team1_serving = !team1_serving;//switches each call 
   }
   else if((score_team1 + score_team2) > 0 && (score_team1 + score_team2) % 2 == 1)
   {
-    team1_serving = !team1_serving;
+    team1_serving = !team1_serving;//switches every 2 games
   }
+
+  //scoreboard logic
 	if (team1)
 	{
 		++score_team1;
@@ -19,13 +22,12 @@ void PingPongScores::increaseScore(bool team1)
 	{
 		++score_team2;
 	}
-
 	if (score_team1 > 10 && score_team1 - score_team2 > 1)//team1 wins a game
 	{
-    sides_switched = !sides_switched;
-    if(sides_switched)
+    sides_switched = !sides_switched;//switch sides
+    if(sides_switched)//this is since the lcd will update before the led will finish blinking
     {
-      led_blink_team2 = true;
+      led_blink_team2 = true;//hence, blinking the opposite led of the 'now' winning side
     }
     else
     {
@@ -88,9 +90,11 @@ void PingPongScores::decreaseScore(bool team1)
 		score_team2 = 0;
 	}
 };
+
+
 void PingPongScores::updateLEDs()
 {
-  if(led_blink_team1 || led_blink_team2)
+  if(led_blink_team1 || led_blink_team2)//if any led needs to blink
   {
   	if (led_blink_team1)//blinking
   	{
@@ -148,14 +152,14 @@ void PingPongScores::updateLEDs()
       digitalWrite(led_team1, LOW);
     }
   }
-  else
+  else //not blinking leds
   {
-    if(sides_switched)
+    if(sides_switched)//hold an led high or low
     {
-      digitalWrite(led_team1, team1_serving);
+      digitalWrite(led_team1, team1_serving);//convieniently theres only 2 and we have a boolean for what side is serving soo
       digitalWrite(led_team2, !team1_serving);
     }
-    else
+    else//reversed
     {
       digitalWrite(led_team1, !team1_serving);
       digitalWrite(led_team2, team1_serving);
