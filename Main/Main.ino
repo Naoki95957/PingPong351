@@ -29,7 +29,7 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 //-=-=-=-=-=-=-=-=-=-Configuration-=-=-=-=-=-=-=-=-=-=-//
 #define delay_length 10
 #define delay_blinker 50 //this is such that: x * delay_length = ~1/2 a second
-#define delay_blinker_times 5 //this is how many times you want it to blink, assuming: (50% on & 50% off)
+#define delay_blinker_times 10 //this is how many times you want it to blink, assuming: (50% on & 50% off)
 #define rejection_time 200 //time in ms before next press is accepted
 
 //-=-=-=-=-=-=-=-=-=-=-=Variables=-=-=-=-=-=-=-=-=-=-=-=-//
@@ -97,7 +97,6 @@ void loop()
     
     //delay so that the board doesn't work too hard
     delay(delay_length);
-   
     if(!acceptInput)//helps with hysteresis on buttons
     {
       ++rejection_counter;
@@ -107,14 +106,42 @@ void loop()
         acceptInput = true;
       }
     }
+
+    //restart the device
+    if(score.reset_game)
+    {
+      score.reset_game = false;
+      serve_selected = false;
+
+      //set leds low
+      digitalWrite(led_team1, LOW);
+      digitalWrite(led_team2, LOW);
+      
+      lcd.clear();
+      lcd.home();
+      lcd.print(start_message);// Print a message to the LCD
+    }
   }
 }
 
 void updateScoreBoard()
 {
   lcd.clear();
-  writeGames(score.game_team1, score.game_team2);
-  writeScores(score.score_team1, score.score_team2);
+  if(score.game_over)
+  {
+    lcd.home();
+    lcd.print("     WINNER     ");
+    lcd.setCursor(0, 1);
+    if(score.game_team1 > 2)
+      lcd.print("       T1       ");
+    else
+      lcd.print("       T2       ");
+  }
+  else
+  {
+    writeGames(score.game_team1, score.game_team2);
+    writeScores(score.score_team1, score.score_team2);
+  }
 }
 
 //this simply writes the game score to the lcd
@@ -158,12 +185,12 @@ void writeScores(int score_t1, int score_t2)
     //team 1 is left leading
     lcd.home();
     lcd.setCursor(0, 0);
-    lcd.print(String(score_t2));
+    lcd.print("T2:" + String(score_t2));
   
     //team 2 is right leading
     volatile bool extraDigits = score_t1 > 9;
-    lcd.setCursor(15 - extraDigits, 0);
-    lcd.print(String(score_t1)); 
+    lcd.setCursor(15 - (extraDigits + 3), 0);
+    lcd.print(String(score_t1) + ":T1"); 
   }
   else
   {
@@ -172,12 +199,12 @@ void writeScores(int score_t1, int score_t2)
     //team 1 is left leading
     lcd.home();
     lcd.setCursor(0, 0);
-    lcd.print(String(score_t1));
+    lcd.print("T1:" + String(score_t1));
   
     //team 2 is right leading
     volatile bool extraDigits = score_t2 > 9;
-    lcd.setCursor(15 - extraDigits, 0);
-    lcd.print(String(score_t2)); 
+    lcd.setCursor(15 - (extraDigits + 3), 0);
+    lcd.print(String(score_t2) + ":T2"); 
   }
 }
 

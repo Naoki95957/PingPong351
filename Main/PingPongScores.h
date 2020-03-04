@@ -26,6 +26,10 @@ class PingPongScores
     volatile bool sides_switched = false;
     //switches who is serving
     volatile bool team1_serving = false;
+    //bool flag to determine when the game is over
+    volatile bool game_over = false;
+    //this will be used to inform the main script to reset itself
+    volatile bool reset_game = false;
 
     //constructor basically copies all vars and inits a few variables
 		PingPongScores(int led_team1, int led_team2, int delay_length,

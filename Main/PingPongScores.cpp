@@ -25,14 +25,7 @@ void PingPongScores::increaseScore(bool team1)
 	if (score_team1 > 10 && score_team1 - score_team2 > 1)//team1 wins a game
 	{
     sides_switched = !sides_switched;//switch sides
-    if(sides_switched)//this is since the lcd will update before the led will finish blinking
-    {
-      led_blink_team2 = true;//hence, blinking the opposite led of the 'now' winning side
-    }
-    else
-    {
-      led_blink_team1 = true;
-    }
+    //increase game and set score back to 0
 		++game_team1;
 		score_team1 = 0;
 		score_team2 = 0;
@@ -41,6 +34,29 @@ void PingPongScores::increaseScore(bool team1)
 	if (score_team2 > 10 && score_team2 - score_team1 > 1)//team2 wins a game
 	{
     sides_switched = !sides_switched;
+    //increase game and set score back to 0
+		++game_team2;
+   
+		score_team1 = 0;
+		score_team2 = 0;
+	}
+
+ //logic for end of game
+ game_over = (game_team1 > 2) || (game_team2 > 2);
+ if(game_team1 > 2)//team 1 wins
+ {
+    if(sides_switched)//this is since the lcd will update before the led will finish blinking
+    {
+      led_blink_team2 = true;//hence, blinking the opposite led of the 'now' winning side
+    }
+    else
+    {
+      led_blink_team1 = true;
+    }
+ }
+ 
+ if(game_team2 > 2)//team 2 wins
+ {
     if(sides_switched)
     {
       led_blink_team1 = true;
@@ -49,10 +65,7 @@ void PingPongScores::increaseScore(bool team1)
     {
       led_blink_team2 = true;
     }
-		++game_team2;
-		score_team1 = 0;
-		score_team2 = 0;
-	}
+ }
 
  //for debugging purposes
 //  Serial.println("-/-/-/-/-/-/-/-/-");
@@ -151,9 +164,23 @@ void PingPongScores::updateLEDs()
     {
       digitalWrite(led_team1, LOW);
     }
+    
   }
   else //not blinking leds
   {
+    //use this to reset the match
+    if(game_over)
+    {
+      score_team1 = 0;
+      score_team2 = 0;
+      game_team1 = 0;
+      game_team2 = 0;
+      team1_serving = false;
+      sides_switched = false;
+      game_over = false;
+      reset_game = true;
+    }
+    
     if(sides_switched)//hold an led high or low
     {
       digitalWrite(led_team1, team1_serving);//convieniently theres only 2 and we have a boolean for what side is serving soo
