@@ -13,7 +13,7 @@
 ### Libraries
  - [I2C](https://github.com/johnrickman/LiquidCrystal_I2C/)
 ### Tasks
-  - [visit projects](https://github.com/Naoki95957/PingPong351/projects)
+  - TODO End match at 5 sets and maybe make a screen for it? restart the device? idk
   
 ### Schematic
  - [here](https://easyeda.com/editor#id=|29498a957a0b4340a444bca6ef1a7438|2f8fe0c4254c46cbaa43a2404c6f85be) 
