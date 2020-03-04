@@ -16,4 +16,5 @@
   - [visit projects](https://github.com/Naoki95957/PingPong351/projects)
   
 ### Schematic
-[here](https://easyeda.com/editor#id=|29498a957a0b4340a444bca6ef1a7438|2f8fe0c4254c46cbaa43a2404c6f85be) or [here](https://github.com/Naoki95957/PingPong351/blob/master/Schematic.pdf)
+ - [here](https://easyeda.com/editor#id=|29498a957a0b4340a444bca6ef1a7438|2f8fe0c4254c46cbaa43a2404c6f85be) 
+ - or locally [here](https://github.com/Naoki95957/PingPong351/blob/master/Schematic.pdf)
